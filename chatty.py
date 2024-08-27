@@ -57,7 +57,7 @@ def main():
     st.title("CareConnect")
 
     # Input fields
-    data_description = st.text_area("Enter Data Description", "Data includes various facts about Health, Mental health challenges, and Health centers in St.Kitts.")
+    data_description = st.write("Data includes various facts about Health, Mental health challenges, and Health centers in St.Kitts.")
     
     # Display chat history
     for message in st.session_state['messages']:
