@@ -1,0 +1,10 @@
+deep_translator==1.11.4
+langchain==0.2.14
+langchain_core==0.2.34
+langchain_openai==0.1.22
+langdetect==1.0.9
+openai==1.42.0
+pyttsx3==2.91
+streamlit==1.37.1
+langchain_community
+toml
