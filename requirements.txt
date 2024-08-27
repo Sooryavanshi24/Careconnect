@@ -8,4 +8,3 @@ pyttsx3==2.91
 streamlit==1.37.1
 langchain_community
 toml
-googletrans==4.0.0-rc1
