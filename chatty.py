@@ -2,12 +2,16 @@ from langchain.chains import LLMChain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 import streamlit as st
+from googletrans import Translator
 
 # Set your OpenAI API key
 api_key = st.secrets["OPENAI_API_KEY"]
 
 # Initialize the LLM
 llm = OpenAI(api_key=api_key)
+
+# Initialize the Translator
+translator = Translator()
 
 # Define the prompt template for conversation with memory
 def generate_prompt(messages):
@@ -35,7 +39,15 @@ st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
 # Initialize or reset the conversation history if the session state is empty
 if "messages" not in st.session_state:
-    st.session_state.messages = []  # Store messages in session state
+    st.session_state.messages = []
+    st.session_state.language = 'en'  # Default language
+
+# Language selection
+languages = ['en', 'es', 'fr', 'de', 'zh-cn', 'ja']  # Add more languages as needed
+selected_language = st.selectbox("Select your language:", languages)
+
+if selected_language:
+    st.session_state.language = selected_language
 
 # Display previous messages
 for message in st.session_state.messages:
@@ -46,19 +58,25 @@ for message in st.session_state.messages:
 user_input = st.chat_input("Enter your message:")
 
 if user_input:
+    # Translate user input to English
+    translated_input = translator.translate(user_input, dest='en').text
+    
     # Append user message to the session state
-    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.session_state.messages.append({"role": "user", "content": translated_input})
 
     try:
         # Get the response from LangChain with conversation context
         bot_response = conversation_chain.run(messages=st.session_state.messages)
 
+        # Translate the response back to the user's selected language
+        translated_response = translator.translate(bot_response, dest=st.session_state.language).text
+
         # Append assistant's response to the session state
-        st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        st.session_state.messages.append({"role": "assistant", "content": translated_response})
 
         # Display the assistant's response
         with st.chat_message("assistant"):
-            st.write(bot_response)
+            st.write(translated_response)
 
     except Exception as e:
         st.write(f"An error occurred: {e}")
@@ -67,6 +85,7 @@ if user_input:
     max_memory_length = 20  # Limit the number of messages to remember
     if len(st.session_state.messages) > max_memory_length:
         st.session_state.messages = st.session_state.messages[-max_memory_length:]
+
 
 
 
