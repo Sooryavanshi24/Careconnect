@@ -9,16 +9,25 @@ api_key = st.secrets["OPENAI_API_KEY"]
 # Initialize the LLM
 llm = OpenAI(api_key=api_key)
 
-# Define the prompt template for conversation using a simpler PromptTemplate
-prompt_template = PromptTemplate(
-    input_variables=["user_input"],
-    template="""
-    You are 🌍 Careconnect, a helpful assistant. The user said: {user_input}. Respond accordingly.
+# Define the prompt template for conversation with context
+def generate_prompt(messages):
+    conversation_history = "\n".join([f"{message['role']}: {message['content']}" for message in messages])
+    return f"""
+    You are 🌍 Careconnect, a helpful assistant. Here is the conversation so far:
+    {conversation_history}
+    The user said: {messages[-1]['content']}
+    Respond accordingly.
     """
-)
 
 # Create a LangChain for conversation
-conversation_chain = LLMChain(llm=llm, prompt=prompt_template)
+def get_conversation_chain():
+    prompt_template = PromptTemplate(
+        input_variables=["messages"],
+        template=generate_prompt
+    )
+    return LLMChain(llm=llm, prompt=prompt_template)
+
+conversation_chain = get_conversation_chain()
 
 # Streamlit app layout
 st.title("🌍 Careconnect Chatbot")
@@ -41,8 +50,8 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     try:
-        # Get the response from LangChain
-        bot_response = conversation_chain.run(user_input=user_input)
+        # Get the response from LangChain with conversation context
+        bot_response = conversation_chain.run(messages=st.session_state.messages)
 
         # Append assistant's response to the session state
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
@@ -53,4 +62,5 @@ if user_input:
 
     except Exception as e:
         st.write(f"An error occurred: {e}")
+
 
