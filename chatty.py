@@ -37,17 +37,17 @@ conversation_chain = get_conversation_chain()
 st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
+# Settings sidebar for language selection
+with st.sidebar:
+    st.header("Settings")
+    languages = ['en', 'es', 'fr', 'de', 'zh-cn', 'ja']  # Add more languages as needed
+    selected_language = st.selectbox("Select your language:", languages)
+    st.session_state.language = selected_language
+
 # Initialize or reset the conversation history if the session state is empty
 if "messages" not in st.session_state:
     st.session_state.messages = []
-    st.session_state.language = 'en'  # Default language
-
-# Language selection
-languages = ['en', 'es', 'fr', 'de', 'zh-cn', 'ja']  # Add more languages as needed
-selected_language = st.selectbox("Select your language:", languages)
-
-if selected_language:
-    st.session_state.language = selected_language
+    st.session_state.language = selected_language  # Set the default language from sidebar
 
 # Display previous messages
 for message in st.session_state.messages:
@@ -85,6 +85,7 @@ if user_input:
     max_memory_length = 20  # Limit the number of messages to remember
     if len(st.session_state.messages) > max_memory_length:
         st.session_state.messages = st.session_state.messages[-max_memory_length:]
+
 
 
 
