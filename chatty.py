@@ -9,7 +9,7 @@ api_key = st.secrets["OPENAI_API_KEY"]
 # Initialize the LLM
 llm = OpenAI(api_key=api_key)
 
-# Define the prompt template for conversation with context
+# Define the prompt template for conversation with memory
 def generate_prompt(messages):
     conversation_history = "\n".join([f"{message['role']}: {message['content']}" for message in messages])
     return f"""
@@ -19,7 +19,7 @@ def generate_prompt(messages):
     Respond accordingly.
     """
 
-# Create a LangChain for conversation
+# Create a LangChain for conversation with memory
 def get_conversation_chain():
     prompt_template = PromptTemplate(
         input_variables=["messages"],
@@ -33,7 +33,7 @@ conversation_chain = get_conversation_chain()
 st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
-# Chat interface with chat_input and chat_message
+# Initialize or reset the conversation history if the session state is empty
 if "messages" not in st.session_state:
     st.session_state.messages = []  # Store messages in session state
 
@@ -62,5 +62,11 @@ if user_input:
 
     except Exception as e:
         st.write(f"An error occurred: {e}")
+
+    # Optionally limit the memory size to prevent excessive prompt length
+    max_memory_length = 20  # Limit the number of messages to remember
+    if len(st.session_state.messages) > max_memory_length:
+        st.session_state.messages = st.session_state.messages[-max_memory_length:]
+
 
 
